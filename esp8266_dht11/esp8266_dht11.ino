@@ -52,5 +52,5 @@ void loop() {
   } else {
     Serial.println("Wi-Fi deconnecte");
   }
-  delay(1200000UL); // Une mesure toutes les 20 minutes (20 * 60 * 1000 ms)
+  delay(1000 * 60 * 5);
 }
