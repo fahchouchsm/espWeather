@@ -1,0 +1,43 @@
+### Environment Variables
+@baseUrl = http://68.221.71.45:8000
+# @baseUrl = http://127.0.0.1:8000
+
+### 1. GET All Measurements (JSON)
+GET {{baseUrl}}/list/
+Accept: application/json
+
+### 2. POST Normal Measurement (No Alert)
+POST {{baseUrl}}/post/
+Content-Type: application/json
+
+{
+  "temperature": 21.0,
+  "humidity": 45.0
+}
+
+### 3. POST Alert Measurement (> 25°C -> Triggers Gmail & Telegram Alerts)
+POST {{baseUrl}}/post/
+Content-Type: application/json
+
+{
+  "temperature": 29.5,
+  "humidity": 65.0
+}
+
+### 4. POST Critical Alert (32.0°C)
+POST {{baseUrl}}/post/
+Content-Type: application/json
+
+{
+  "temperature": 32.0,
+  "humidity": 70.0
+}
+
+### 5. GET Live Tailwind Dashboard
+GET {{baseUrl}}/
+
+### 6. GET History Table View
+GET {{baseUrl}}/history/
+
+### 7. Export CSV
+GET {{baseUrl}}/export-csv/

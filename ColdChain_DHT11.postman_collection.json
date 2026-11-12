@@ -1,0 +1,148 @@
+{
+  "info": {
+    "name": "Cold Chain — ESP8266 DHT11 API",
+    "description": "Postman requests for the Cold Chain DHT11 IoT Django REST API. Supports local and Azure server environments.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://68.221.71.45:8000",
+      "type": "string",
+      "description": "Base URL of the Django server (use http://127.0.0.1:8000 for local)"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. GET All Measurements",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/list/",
+          "host": ["{{baseUrl}}"],
+          "path": ["list", ""]
+        },
+        "description": "Fetches all recorded temperature and humidity readings in JSON format."
+      },
+      "response": []
+    },
+    {
+      "name": "2. POST Normal Reading (<= 25°C - No Alert)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"temperature\": 21.5,\n  \"humidity\": 48.0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post/",
+          "host": ["{{baseUrl}}"],
+          "path": ["post", ""]
+        },
+        "description": "Simulates an ESP8266 measurement with normal temperature (<= 25°C). Returns HTTP 201 without triggering alerts."
+      },
+      "response": []
+    },
+    {
+      "name": "3. POST Alert Reading (> 25°C - Triggers Gmail & Telegram)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"temperature\": 28.5,\n  \"humidity\": 62.0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post/",
+          "host": ["{{baseUrl}}"],
+          "path": ["post", ""]
+        },
+        "description": "Sends a temperature > 25°C. Returns HTTP 201 Created and automatically sends an email via Gmail and a notification to the Telegram bot!"
+      },
+      "response": []
+    },
+    {
+      "name": "4. POST Critical Alert (33.0°C)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"temperature\": 33.0,\n  \"humidity\": 75.0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post/",
+          "host": ["{{baseUrl}}"],
+          "path": ["post", ""]
+        },
+        "description": "Critical cold chain failure test (33°C). Triggers notifications."
+      },
+      "response": []
+    },
+    {
+      "name": "5. GET Dashboard Web View",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Returns the Tailwind CSS live telemetry dashboard."
+      },
+      "response": []
+    },
+    {
+      "name": "6. GET Export CSV",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/export-csv/",
+          "host": ["{{baseUrl}}"],
+          "path": ["export-csv", ""]
+        },
+        "description": "Downloads the complete telemetry history as a CSV file."
+      },
+      "response": []
+    }
+  ]
+}

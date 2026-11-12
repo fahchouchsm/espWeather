@@ -34,6 +34,10 @@ class Dhtviews(generics.CreateAPIView):
             if telegram_token and telegram_token != "TOKEN_DU_BOT" and telegram_chat_id:
                 try:
                     bot = telebot.TeleBot(telegram_token)
-                    bot.send_message(telegram_chat_id, message)
+                    for cid in str(telegram_chat_id).split(','):
+                        cid = cid.strip()
+                        if cid:
+                            bot.send_message(cid, message)
                 except Exception as e:
                     print(f"Erreur envoi Telegram: {e}")
+iot_tppp_bot
