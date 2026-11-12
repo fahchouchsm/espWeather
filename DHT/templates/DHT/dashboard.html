@@ -1,349 +1,178 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-slate-900">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cold Chain — IoT Dashboard</title>
+  <title>ESP8266 DHT11 — Télémétrie</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    @keyframes pulse-slow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .7; transform: scale(1.05); }
-    }
-    .animate-pulse-slow {
-      animation: pulse-slow 2.5s infinite;
-    }
-  </style>
 </head>
-<body class="h-full text-slate-100 flex flex-col font-sans antialiased bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+<body class="bg-gray-50 text-gray-900 font-sans antialiased min-h-screen flex flex-col">
 
-  <!-- Top Navigation Bar -->
-  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            Cold Chain IoT
-            <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> En direct
-            </span>
-          </h1>
-          <p class="text-xs text-slate-400">NodeMCU ESP8266 + DHT11 &bull; Django REST</p>
-        </div>
+  <!-- Minimal Nav -->
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <span class="font-semibold text-gray-900 tracking-tight">ESP8266 DHT11</span>
+        <span class="text-xs text-gray-500 border-l border-gray-200 pl-4">Capteur Télémétrie</span>
       </div>
 
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 px-3 py-1.5 rounded-lg text-xs text-slate-300">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span>Alerte Gmail activée</span>
-        </div>
-
-        <a href="{% url 'history' %}" class="text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Historique
-        </a>
-
-        <a href="/admin/" target="_blank" class="text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          Admin
-        </a>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="{% url 'dashboard' %}" class="text-blue-600 font-medium">Dashboard</a>
+        <a href="{% url 'history' %}" class="text-gray-600 hover:text-gray-900">Historique</a>
+        <a href="{% url 'export-csv' %}" class="text-gray-600 hover:text-gray-900">Export CSV</a>
+        <a href="{% url 'dht-list' %}" target="_blank" class="text-gray-400 hover:text-gray-600 font-mono text-xs">/list/</a>
+        <a href="/admin/" target="_blank" class="text-gray-600 hover:text-gray-900">Admin</a>
       </div>
     </div>
-  </header>
+  </nav>
 
-  <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+  <!-- Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
-    <!-- Overview / Controls Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- Status Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-4">
       <div>
-        <h2 class="text-2xl font-bold text-white tracking-tight">Tableau de Bord Télémétrie</h2>
-        <p class="text-sm text-slate-400 mt-0.5">Surveillance en temps réel de la chaîne du froid et gestion des alertes critiques.</p>
+        <h1 class="text-xl font-bold text-gray-900">Mesures en temps réel</h1>
+        <p class="text-xs text-gray-500">Seuil d'alerte : > 25.0 °C (notification email automatique)</p>
       </div>
-
       <div class="flex items-center gap-3">
-        <button id="refreshBtn" onclick="fetchLiveUpdates()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
-          <svg id="refreshIcon" class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
+        <span id="liveStatus" class="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Connecté
+        </span>
+        <button onclick="fetchData()" id="refreshBtn" class="text-xs bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium px-3 py-1.5 rounded transition">
           Actualiser
         </button>
-
-        <a href="{% url 'export-csv' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Exporter CSV
-        </a>
       </div>
     </div>
 
-    <!-- Metric Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
-      <!-- Temperature Card -->
-      <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl backdrop-blur-sm group hover:border-amber-500/50 transition duration-300">
-        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition"></div>
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Température Actuelle</span>
-          <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-        </div>
-
-        <div class="flex items-baseline gap-2">
-          <span id="currentTemp" class="text-4xl font-extrabold text-white tracking-tight">
+    <!-- Metrics Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      
+      <!-- Temp -->
+      <div class="bg-white p-4 rounded-lg border border-gray-200">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Température</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span id="valTemp" class="text-3xl font-bold text-gray-900">
             {% if latest %}{{ latest.temperature|floatformat:1 }}{% else %}--{% endif %}
           </span>
-          <span class="text-xl font-bold text-slate-400">°C</span>
+          <span class="text-gray-500 text-sm">°C</span>
         </div>
-
-        <div class="mt-4 flex items-center justify-between text-xs">
-          <span id="tempStatusBadge" class="px-2.5 py-1 rounded-full font-medium {% if latest and latest.temperature > 25 %}bg-red-500/20 text-red-400 border border-red-500/30{% else %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30{% endif %}">
-            {% if latest and latest.temperature > 25 %}⚠️ ALERTE > 25°C{% else %}✓ Normale (&le; 25°C){% endif %}
-          </span>
-          <span class="text-slate-400">
-            Moy: <span class="text-slate-200 font-semibold">{{ stats.avg_temp|default:0|floatformat:1 }}°C</span>
+        <div class="mt-2">
+          <span id="badgeTemp" class="text-xs px-2 py-0.5 rounded font-medium {% if latest and latest.temperature > 25 %}bg-red-50 text-red-700 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+            {% if latest and latest.temperature > 25 %}Alerte (>25°C){% else %}Normale{% endif %}
           </span>
         </div>
       </div>
 
-      <!-- Humidity Card -->
-      <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl backdrop-blur-sm group hover:border-sky-500/50 transition duration-300">
-        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition"></div>
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Humidité Relative</span>
-          <div class="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-          </div>
-        </div>
-
-        <div class="flex items-baseline gap-2">
-          <span id="currentHum" class="text-4xl font-extrabold text-white tracking-tight">
+      <!-- Hum -->
+      <div class="bg-white p-4 rounded-lg border border-gray-200">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Humidité</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span id="valHum" class="text-3xl font-bold text-gray-900">
             {% if latest %}{{ latest.humidity|floatformat:1 }}{% else %}--{% endif %}
           </span>
-          <span class="text-xl font-bold text-slate-400">%</span>
+          <span class="text-gray-500 text-sm">%</span>
         </div>
-
-        <div class="mt-4 flex items-center justify-between text-xs">
-          <span class="px-2.5 py-1 rounded-full font-medium bg-sky-500/20 text-sky-400 border border-sky-500/30">
-            Plage DHT11
-          </span>
-          <span class="text-slate-400">
-            Moy: <span class="text-slate-200 font-semibold">{{ stats.avg_hum|default:0|floatformat:1 }}%</span>
-          </span>
+        <div class="mt-2 text-xs text-gray-500">
+          Moyenne : {{ stats.avg_hum|default:0|floatformat:1 }}%
         </div>
       </div>
 
-      <!-- Alert Count Card -->
-      <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl backdrop-blur-sm group hover:border-red-500/50 transition duration-300">
-        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition"></div>
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Alertes Déclenchées</span>
-          <div class="p-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-          </div>
+      <!-- Alerts -->
+      <div class="bg-white p-4 rounded-lg border border-gray-200">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Alertes (>25°C)</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span class="text-3xl font-bold {% if alerts_count > 0 %}text-red-600{% else %}text-gray-900{% endif %}">
+            {{ alerts_count }}
+          </span>
         </div>
-
-        <div class="flex items-baseline gap-2">
-          <span class="text-4xl font-extrabold text-white tracking-tight">{{ alerts_count }}</span>
-          <span class="text-sm font-medium text-slate-400">événements</span>
-        </div>
-
-        <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
-          <span>Seuil critique: <strong class="text-rose-400">> 25 °C</strong></span>
-          <span>SMTP: <strong class="text-emerald-400">Prêt</strong></span>
+        <div class="mt-2 text-xs text-gray-500">
+          Emails envoyés
         </div>
       </div>
 
-      <!-- Total Records Card -->
-      <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl backdrop-blur-sm group hover:border-indigo-500/50 transition duration-300">
-        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition"></div>
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Télémétrie</span>
-          <div class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-            </svg>
-          </div>
+      <!-- Total -->
+      <div class="bg-white p-4 rounded-lg border border-gray-200">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Total Mesures</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span id="valCount" class="text-3xl font-bold text-gray-900">{{ total_count }}</span>
         </div>
-
-        <div class="flex items-baseline gap-2">
-          <span class="text-4xl font-extrabold text-white tracking-tight">{{ total_count }}</span>
-          <span class="text-sm font-medium text-slate-400">mesures</span>
-        </div>
-
-        <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
-          <span>Dernière:</span>
-          <span id="lastUpdated" class="text-slate-300 font-medium">
-            {% if latest %}{{ latest.date|date:"H:i:s d/m" }}{% else %}Aucune{% endif %}
-          </span>
+        <div class="mt-2 text-xs text-gray-500 truncate" id="valDate">
+          {% if latest %}{{ latest.date|date:"H:i:s d/m/Y" }}{% else %}--{% endif %}
         </div>
       </div>
 
     </div>
 
-    <!-- Chart Section -->
-    <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl backdrop-blur-sm">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h3 class="text-lg font-bold text-white tracking-tight">Courbes d'Évolution Temporelle</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Historique récent des 50 dernières acquisitions transmises par l'ESP8266.</p>
-        </div>
-
-        <div class="flex items-center gap-4 text-xs">
-          <div class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-            <span class="text-slate-300">Température (°C)</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded-full bg-sky-500"></span>
-            <span class="text-slate-300">Humidité (%)</span>
-          </div>
-          <div class="flex items-center gap-1.5 border-l border-slate-700 pl-3">
-            <span class="w-3 h-0.5 bg-rose-500"></span>
-            <span class="text-rose-400 font-medium">Seuil 25°C</span>
-          </div>
-        </div>
+    <!-- Chart -->
+    <div class="bg-white p-4 rounded-lg border border-gray-200">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-gray-900">Graphique Température & Humidité</h2>
+        <span class="text-xs text-gray-400">50 dernières mesures</span>
       </div>
-
-      <div class="h-72 w-full">
-        <canvas id="telemetryChart"></canvas>
+      <div class="h-64 w-full">
+        <canvas id="chart"></canvas>
       </div>
     </div>
 
-    <!-- Live Telemetry Data Table -->
-    <div class="rounded-2xl border border-slate-800 bg-slate-900/70 shadow-xl backdrop-blur-sm overflow-hidden">
-      <div class="px-6 py-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h3 class="text-lg font-bold text-white tracking-tight">Dernières Mesures Enregistrées</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Flux d'ingestion direct depuis l'endpoint <code class="text-sky-400 font-mono">POST /post/</code>.</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span class="text-xs text-slate-400">Actualisation dynamique toutes les 10s</span>
-        </div>
+    <!-- Table -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-900">Derniers enregistrements</h2>
+        <a href="{% url 'history' %}" class="text-xs text-blue-600 hover:underline">Voir tout &rarr;</a>
       </div>
-
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-300">
-          <thead class="bg-slate-950/60 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-gray-50 text-gray-600 border-b border-gray-200">
             <tr>
-              <th scope="col" class="px-6 py-3.5 font-semibold">ID</th>
-              <th scope="col" class="px-6 py-3.5 font-semibold">Température</th>
-              <th scope="col" class="px-6 py-3.5 font-semibold">Humidité</th>
-              <th scope="col" class="px-6 py-3.5 font-semibold">Statut</th>
-              <th scope="col" class="px-6 py-3.5 font-semibold">Date & Heure</th>
+              <th class="px-4 py-2 font-medium">ID</th>
+              <th class="px-4 py-2 font-medium">Température</th>
+              <th class="px-4 py-2 font-medium">Humidité</th>
+              <th class="px-4 py-2 font-medium">État</th>
+              <th class="px-4 py-2 font-medium">Date & Heure</th>
             </tr>
           </thead>
-          <tbody id="telemetryTableBody" class="divide-y divide-slate-800/60 font-medium">
+          <tbody id="tableBody" class="divide-y divide-gray-100 font-mono">
             {% for item in recent_readings %}
-            <tr class="hover:bg-slate-800/40 transition">
-              <td class="px-6 py-4 font-mono text-xs text-slate-400">#{{ item.id }}</td>
-              <td class="px-6 py-4 font-semibold text-white">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full {% if item.temperature > 25 %}bg-red-500{% else %}bg-amber-400{% endif %}"></span>
-                  {{ item.temperature|floatformat:1 }} °C
-                </span>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 text-gray-400">#{{ item.id }}</td>
+              <td class="px-4 py-2 font-medium {% if item.temperature > 25 %}text-red-600 font-bold{% else %}text-gray-900{% endif %}">
+                {{ item.temperature|floatformat:1 }} °C
               </td>
-              <td class="px-6 py-4 text-sky-300">
+              <td class="px-4 py-2 text-gray-700">
                 {{ item.humidity|floatformat:1 }} %
               </td>
-              <td class="px-6 py-4">
+              <td class="px-4 py-2 font-sans">
                 {% if item.temperature > 25 %}
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                  ⚠️ ALERTE (> 25°C)
-                </span>
+                <span class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-red-50 text-red-700 border border-red-200">Alerte</span>
                 {% else %}
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  ✓ Normale
-                </span>
+                <span class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700">OK</span>
                 {% endif %}
               </td>
-              <td class="px-6 py-4 text-xs text-slate-400 font-mono">
+              <td class="px-4 py-2 text-gray-500">
                 {{ item.date|date:"Y-m-d H:i:s" }}
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="5" class="px-6 py-8 text-center text-slate-500 text-sm">
-                Aucune mesure enregistrée pour le moment.
-              </td>
+              <td colspan="5" class="px-4 py-6 text-center text-gray-400 font-sans">Aucune mesure.</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-
-      <div class="px-6 py-3 bg-slate-950/40 border-t border-slate-800 flex justify-end">
-        <a href="{% url 'history' %}" class="text-xs font-semibold text-sky-400 hover:text-sky-300 transition flex items-center gap-1">
-          Voir l'historique complet &rarr;
-        </a>
-      </div>
     </div>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-slate-800/80 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p>Projet COLD CHAIN &bull; EHEI Casablanca &bull; Django REST Framework &amp; ESP8266</p>
-      <div class="flex items-center gap-4 text-slate-400">
-        <a href="{% url 'dht-list' %}" class="hover:text-slate-200 transition font-mono">API GET /list/</a>
-        <span>&bull;</span>
-        <a href="{% url 'dht-create' %}" class="hover:text-slate-200 transition font-mono">API POST /post/</a>
-      </div>
-    </div>
+  <footer class="bg-white border-t border-gray-200 py-3 text-center text-xs text-gray-400">
+    Projet DHT11 ESP8266 &bull; Django REST &bull; <a href="/post/" class="hover:underline">POST /post/</a> &bull; <a href="/list/" class="hover:underline">GET /list/</a>
   </footer>
 
-  <!-- Chart & Live Updates Script -->
   <script>
-    // Initialize Chart.js
-    const ctx = document.getElementById('telemetryChart').getContext('2d');
-    
-    // Initial data from Django Template
-    const initialLabels = [{% for item in recent_readings reversed %}"{{ item.date|date:'H:i:s' }}",{% endfor %}];
+    const ctx = document.getElementById('chart').getContext('2d');
+    const initialLabels = [{% for item in recent_readings reversed %}"{{ item.date|date:'H:i' }}",{% endfor %}];
     const initialTemps = [{% for item in recent_readings reversed %}{{ item.temperature }},{% endfor %}];
     const initialHums = [{% for item in recent_readings reversed %}{{ item.humidity }},{% endfor %}];
 
@@ -355,21 +184,21 @@
           {
             label: 'Température (°C)',
             data: initialTemps,
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.08)',
-            borderWidth: 2,
-            tension: 0.35,
-            fill: true,
+            borderColor: '#dc2626',
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            pointRadius: 1.5,
+            tension: 0.1,
             yAxisID: 'y'
           },
           {
             label: 'Humidité (%)',
             data: initialHums,
-            borderColor: '#0284c7',
-            backgroundColor: 'rgba(2, 132, 199, 0.05)',
-            borderWidth: 2,
-            tension: 0.35,
-            fill: true,
+            borderColor: '#2563eb',
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            pointRadius: 1.5,
+            tension: 0.1,
             yAxisID: 'y1'
           }
         ]
@@ -377,126 +206,85 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
         plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#0f172a',
-            titleColor: '#f8fafc',
-            bodyColor: '#cbd5e1',
-            borderColor: '#334155',
-            borderWidth: 1,
-            padding: 10,
-            cornerRadius: 8
-          }
+          legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
         },
         scales: {
-          x: {
-            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-            ticks: { color: '#94a3b8', font: { size: 10 } }
-          },
+          x: { ticks: { font: { size: 10 } } },
           y: {
             type: 'linear',
-            display: true,
             position: 'left',
-            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-            ticks: { color: '#f59e0b', font: { size: 11 } },
-            title: { display: true, text: 'Temp (°C)', color: '#f59e0b', font: { size: 10 } }
+            title: { display: true, text: 'Temp (°C)', font: { size: 10 } },
+            ticks: { font: { size: 10 } }
           },
           y1: {
             type: 'linear',
-            display: true,
             position: 'right',
             grid: { drawOnChartArea: false },
-            ticks: { color: '#38bdf8', font: { size: 11 } },
-            title: { display: true, text: 'Humidité (%)', color: '#38bdf8', font: { size: 10 } }
+            title: { display: true, text: 'Hum (%)', font: { size: 10 } },
+            ticks: { font: { size: 10 } }
           }
         }
       }
     });
 
-    // Auto Refresh Functionality
-    async function fetchLiveUpdates() {
-      const refreshIcon = document.getElementById('refreshIcon');
-      refreshIcon.classList.add('animate-spin');
-
+    async function fetchData() {
       try {
-        const response = await fetch('/list/');
-        if (!response.ok) throw new Error('Erreur HTTP ' + response.status);
-        const json = await response.json();
+        const res = await fetch('/list/');
+        if (!res.ok) return;
+        const json = await res.json();
         const data = json.data;
+        if (!data || data.length === 0) return;
 
-        if (data && data.length > 0) {
-          // Sort or pick latest
-          const latestItem = data[data.length - 1];
+        const latest = data[data.length - 1];
+        document.getElementById('valTemp').innerText = parseFloat(latest.temperature).toFixed(1);
+        document.getElementById('valHum').innerText = parseFloat(latest.humidity).toFixed(1);
+        document.getElementById('valCount').innerText = data.length;
 
-          // Update current cards
-          document.getElementById('currentTemp').innerText = parseFloat(latestItem.temperature).toFixed(1);
-          document.getElementById('currentHum').innerText = parseFloat(latestItem.humidity).toFixed(1);
-          
-          const badge = document.getElementById('tempStatusBadge');
-          if (latestItem.temperature > 25) {
-            badge.className = "px-2.5 py-1 rounded-full font-medium bg-red-500/20 text-red-400 border border-red-500/30";
-            badge.innerText = "⚠️ ALERTE > 25°C";
-          } else {
-            badge.className = "px-2.5 py-1 rounded-full font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-            badge.innerText = "✓ Normale (≤ 25°C)";
-          }
-
-          // Update chart data with latest 50
-          const slice = data.slice(-50);
-          chart.data.labels = slice.map(d => {
-            const date = new Date(d.date);
-            return isNaN(date.getTime()) ? d.date : date.toLocaleTimeString();
-          });
-          chart.data.datasets[0].data = slice.map(d => d.temperature);
-          chart.data.datasets[1].data = slice.map(d => d.humidity);
-          chart.update('none');
-
-          // Update table (latest 10)
-          const tableBody = document.getElementById('telemetryTableBody');
-          const latest10 = data.slice(-10).reverse();
-          tableBody.innerHTML = latest10.map(item => `
-            <tr class="hover:bg-slate-800/40 transition">
-              <td class="px-6 py-4 font-mono text-xs text-slate-400">#${item.id}</td>
-              <td class="px-6 py-4 font-semibold text-white">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full ${item.temperature > 25 ? 'bg-red-500' : 'bg-amber-400'}"></span>
-                  ${parseFloat(item.temperature).toFixed(1)} °C
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sky-300">
-                ${parseFloat(item.humidity).toFixed(1)} %
-              </td>
-              <td class="px-6 py-4">
-                ${item.temperature > 25 ? `
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                    ⚠️ ALERTE (> 25°C)
-                  </span>
-                ` : `
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    ✓ Normale
-                  </span>
-                `}
-              </td>
-              <td class="px-6 py-4 text-xs text-slate-400 font-mono">
-                ${new Date(item.date).toLocaleString()}
-              </td>
-            </tr>
-          `).join('');
+        const badge = document.getElementById('badgeTemp');
+        if (latest.temperature > 25) {
+          badge.className = "text-xs px-2 py-0.5 rounded font-medium bg-red-50 text-red-700 border border-red-200";
+          badge.innerText = "Alerte (>25°C)";
+        } else {
+          badge.className = "text-xs px-2 py-0.5 rounded font-medium bg-green-50 text-green-700 border border-green-200";
+          badge.innerText = "Normale";
         }
-      } catch (err) {
-        console.error('Erreur rafraîchissement:', err);
-      } finally {
-        setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
+
+        const slice = data.slice(-50);
+        chart.data.labels = slice.map(d => {
+          const dt = new Date(d.date);
+          return isNaN(dt.getTime()) ? d.date : dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        });
+        chart.data.datasets[0].data = slice.map(d => d.temperature);
+        chart.data.datasets[1].data = slice.map(d => d.humidity);
+        chart.update('none');
+
+        const latest10 = data.slice(-15).reverse();
+        document.getElementById('tableBody').innerHTML = latest10.map(item => `
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-2 text-gray-400">#${item.id}</td>
+            <td class="px-4 py-2 font-medium ${item.temperature > 25 ? 'text-red-600 font-bold' : 'text-gray-900'}">
+              ${parseFloat(item.temperature).toFixed(1)} °C
+            </td>
+            <td class="px-4 py-2 text-gray-700">
+              ${parseFloat(item.humidity).toFixed(1)} %
+            </td>
+            <td class="px-4 py-2 font-sans">
+              ${item.temperature > 25 ? 
+                '<span class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-red-50 text-red-700 border border-red-200">Alerte</span>' : 
+                '<span class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700">OK</span>'}
+            </td>
+            <td class="px-4 py-2 text-gray-500">
+              ${new Date(item.date).toLocaleString()}
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error(e);
       }
     }
 
-    // Auto-poll every 10 seconds
-    setInterval(fetchLiveUpdates, 10000);
+    setInterval(fetchData, 10000);
   </script>
 </body>
 </html>
